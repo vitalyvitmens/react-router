@@ -1,4 +1,4 @@
-import { Routes, Route, Link, Outlet, useParams } from 'react-router-dom'
+import { Routes, Route, NavLink, Outlet, useParams } from 'react-router-dom'
 import styles from './app.module.css'
 
 const fetchProductsList = () => [
@@ -22,16 +22,24 @@ const Catalog = () => (
 		<ul>
 			{fetchProductsList().map(({ id, name }) => (
 				<li key={id}>
-					<Link to={`product/${id}`}>{name}</Link>
+					<NavLink to={`product/${id}`}>{name}</NavLink>
 				</li>
 			))}
 		</ul>
 		<Outlet />
 	</div>
 )
+const ProductNotFound = () => <div>Такой товар не существует</div>
 const Product = () => {
-  const params = useParams()
-	const { name, price, amount } = fetchProduct(params.id)
+	const params = useParams()
+
+	const product = fetchProduct(params.id)
+
+	if (!product) {
+		return <ProductNotFound />
+	}
+
+	const { name, price, amount } = product
 
 	return (
 		<div>
@@ -43,6 +51,22 @@ const Product = () => {
 }
 
 const Contacts = () => <div>Контент контактов</div>
+const NotFound = () => <div>Такая страница не существует</div>
+
+const ExtendedLink = ({ to, children }) => (
+	<NavLink to={to}>
+		{({ isActive }) =>
+			isActive ? (
+				<>
+					<span>{children}</span>
+					<span>*</span>
+				</>
+			) : (
+				children
+			)
+		}
+	</NavLink>
+)
 
 export const App = () => {
 	return (
@@ -51,13 +75,13 @@ export const App = () => {
 				<h3>Меню</h3>
 				<ul>
 					<li>
-						<Link to="/">Главная</Link>
+            <ExtendedLink to="/">Главная</ExtendedLink>
+          </li>
+					<li>
+						<ExtendedLink to="/catalog">Каталог</ExtendedLink>
 					</li>
 					<li>
-						<Link to="/catalog">Каталог</Link>
-					</li>
-					<li>
-						<Link to="/contacts">Контакты</Link>
+						<ExtendedLink to="/contacts">Контакты</ExtendedLink>
 					</li>
 				</ul>
 			</div>
@@ -67,6 +91,7 @@ export const App = () => {
 					<Route path="product/:id" element={<Product />} />
 				</Route>
 				<Route path="/contacts" element={<Contacts />} />
+				<Route path="*" element={<NotFound />} />
 			</Routes>
 		</div>
 	)
