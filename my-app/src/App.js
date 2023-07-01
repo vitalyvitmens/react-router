@@ -1,4 +1,11 @@
-import { Routes, Route, NavLink, Outlet, useParams } from 'react-router-dom'
+import {
+	Routes,
+	Route,
+	NavLink,
+	Outlet,
+	useParams,
+	useMatch,
+} from 'react-router-dom'
 import styles from './app.module.css'
 
 const fetchProductsList = () => [
@@ -32,6 +39,11 @@ const Catalog = () => (
 const ProductNotFound = () => <div>Такой товар не существует</div>
 const Product = () => {
 	const params = useParams()
+	const urlMatchData = useMatch('/catalog/:type/:id')
+
+	console.log(urlMatchData.params)
+	console.log(urlMatchData.params.type)
+	console.log(urlMatchData.params.id)
 
 	const product = fetchProduct(params.id)
 
@@ -75,8 +87,8 @@ export const App = () => {
 				<h3>Меню</h3>
 				<ul>
 					<li>
-            <ExtendedLink to="/">Главная</ExtendedLink>
-          </li>
+						<ExtendedLink to="/">Главная</ExtendedLink>
+					</li>
 					<li>
 						<ExtendedLink to="/catalog">Каталог</ExtendedLink>
 					</li>
@@ -89,6 +101,7 @@ export const App = () => {
 				<Route path="/" element={<MainPage />} />
 				<Route path="/catalog" element={<Catalog />}>
 					<Route path="product/:id" element={<Product />} />
+					<Route path="service/:id" element={<Product />} />
 				</Route>
 				<Route path="/contacts" element={<Contacts />} />
 				<Route path="*" element={<NotFound />} />
