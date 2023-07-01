@@ -6,6 +6,8 @@ import {
 	useParams,
 	// useMatch,
 	useNavigate,
+	// Navigate,
+	// useRoutes,
 } from 'react-router-dom'
 import styles from './app.module.css'
 import { useEffect, useState } from 'react'
@@ -123,6 +125,21 @@ const ExtendedLink = ({ to, children }) => (
 )
 
 export const App = () => {
+	// const routes = useRoutes([
+	// 	{ path: '/', element: <MainPage /> },
+	// 	{
+	// 		path: '/catalog',
+	// 		element: <Catalog />,
+	// 		children: [
+	// 			{ path: 'product/:id', element: <Product /> },
+	// 			{ path: 'service/:id', element: <Product /> },
+	// 		],
+	// 	},
+	// 	{ path: '/contacts', element: <Contacts /> },
+	// 	{ path: '/product-load-error', element: <ProductLoadError /> },
+	// 	{ path: '/product-not-found', element: <ProductNotFound /> },
+	// 	{ path: '*', element: <NotFound /> },
+	// ])
 	return (
 		<div className={styles.app}>
 			<div>
@@ -149,7 +166,10 @@ export const App = () => {
 				<Route path="/product-load-error" element={<ProductLoadError />} />
 				<Route path="/product-not-found" element={<ProductNotFound />} />
 				<Route path="*" element={<NotFound />} />
+				{/* <Route path="/404" element={<NotFound />} /> */}
+				{/* <Route path="*" element={<Navigate to="/404" replace={true} />} /> */}
 			</Routes>
+			{/* {routes} */}
 		</div>
 	)
 }
