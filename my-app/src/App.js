@@ -4,22 +4,35 @@ import {
 	NavLink,
 	Outlet,
 	useParams,
-	useMatch,
+	// useMatch,
+	useNavigate,
 } from 'react-router-dom'
 import styles from './app.module.css'
+import { useEffect, useState } from 'react'
 
-const fetchProductsList = () => [
-	{ id: 1, name: 'Телевизор' },
-	{ id: 2, name: 'Смартфор' },
-	{ id: 3, name: 'Планшет' },
-]
+const dataBase = {
+	productList: [
+		{ id: 1, name: 'Телевизор' },
+		{ id: 2, name: 'Смартфон' },
+		{ id: 3, name: 'Планшет' },
+	],
+	products: {
+		1: { id: 1, name: 'Телевизор', price: 29900, amount: 15 },
+		2: { id: 2, name: 'Смартфон', price: 13900, amount: 48 },
+		3: { id: 3, name: 'Планшет', price: 18400, amount: 23 },
+	},
+}
+
+const LOADING_TIMEOUT = 2000
+
+const fetchProductsList = () => dataBase.productList
 
 const fetchProduct = (id) =>
-	({
-		1: { id: 1, name: 'Телевизор', price: 29900, amount: 15 },
-		2: { id: 2, name: 'Смартфор', price: 13900, amount: 48 },
-		3: { id: 3, name: 'Планшет', price: 18400, amount: 23 },
-	}[id])
+	new Promise((resolve) => {
+		setTimeout(() => {
+			resolve(dataBase.products[id])
+		}, 1500)
+	})
 
 const MainPage = () => <div>Контент главной страницы</div>
 
@@ -37,18 +50,47 @@ const Catalog = () => (
 	</div>
 )
 const ProductNotFound = () => <div>Такой товар не существует</div>
+const ProductLoadError = () => (
+	<div>Ошибка загрузки товара, попробуйте ещё раз позднее</div>
+)
 const Product = () => {
+	const [product, setProduct] = useState(null)
 	const params = useParams()
-	const urlMatchData = useMatch('/catalog/:type/:id')
+	const navigate = useNavigate()
 
-	console.log(urlMatchData.params)
-	console.log(urlMatchData.params.type)
-	console.log(urlMatchData.params.id)
+	// const urlMatchData = useMatch('/catalog/:type/:id')
+	// console.log(urlMatchData.params)
+	// console.log(urlMatchData.params.type)
+	// console.log(urlMatchData.params.id)
 
-	const product = fetchProduct(params.id)
+	useEffect(() => {
+		let isLoadingTimeout = false
+		let isProductLoaded = false
+
+		setTimeout(() => {
+			isLoadingTimeout = true
+
+			if (!isProductLoaded) {
+				navigate('/product-load-error', { replace: true })
+			}
+		}, LOADING_TIMEOUT)
+
+		fetchProduct(params.id).then((loadedProduct) => {
+			isProductLoaded = true
+
+			if (!isLoadingTimeout) {
+				if (!loadedProduct) {
+					navigate('/product-not-found')
+					return
+				}
+
+				setProduct(loadedProduct)
+			}
+		})
+	}, [params.id, navigate])
 
 	if (!product) {
-		return <ProductNotFound />
+		return null
 	}
 
 	const { name, price, amount } = product
@@ -104,6 +146,8 @@ export const App = () => {
 					<Route path="service/:id" element={<Product />} />
 				</Route>
 				<Route path="/contacts" element={<Contacts />} />
+				<Route path="/product-load-error" element={<ProductLoadError />} />
+				<Route path="/product-not-found" element={<ProductNotFound />} />
 				<Route path="*" element={<NotFound />} />
 			</Routes>
 		</div>
